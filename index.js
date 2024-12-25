@@ -32,8 +32,19 @@ async function run() {
     const foodsPurchaseCollections = database.collection("Purchase_DB");
 
 
+    // app.get('/foods',async(req,res)=>{
+    //     const cursor = foodsCollections.find()
+    //     const result = await cursor.toArray()
+    //     res.send(result)
+    // })
     app.get('/foods',async(req,res)=>{
-        const cursor = foodsCollections.find()
+
+        const emaill = req.query.email;
+        let query = {};
+        if(emaill){
+          query={email: emaill}
+        }
+        const cursor = foodsCollections.find(query)
         const result = await cursor.toArray()
         res.send(result)
     })
