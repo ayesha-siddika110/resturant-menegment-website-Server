@@ -37,41 +37,53 @@ async function run() {
     //     const result = await cursor.toArray()
     //     res.send(result)
     // })
-    app.get('/foods',async(req,res)=>{
+    app.get('/foods', async (req, res) => {
 
-        const emaill = req.query.email;
-        let query = {};
-        if(emaill){
-          query={email: emaill}
-        }
-        const cursor = foodsCollections.find(query)
-        const result = await cursor.toArray()
-        res.send(result)
+      const emaill = req.query.email;
+      let query = {};
+      if (emaill) {
+        query = { email: emaill }
+      }
+      const cursor = foodsCollections.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.get('/foods/:id',async(req,res)=>{
+    app.get('/foods/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await foodsCollections.findOne(query);
       res.send(result)
     })
 
-    app.post('/foods',async (req,res)=>{
-        const newfood = req.body;
-        const result = await foodsCollections.insertOne(newfood)
-        res.send(result)
+    app.post('/foods', async (req, res) => {
+      const newfood = req.body;
+      const result = await foodsCollections.insertOne(newfood)
+      res.send(result)
 
     })
 
-    app.get('/purchaseFood', async(req,res)=>{
+    app.get('/purchaseFood', async (req, res) => {
       const cursor = foodsPurchaseCollections.find()
       const result = await cursor.toArray()
       res.send(result)
     })
 
-    app.post('/purchaseFood', async(req,res)=>{
+    app.post('/purchaseFood', async (req, res) => {
       const newPurchase = req.body;
       const result = await foodsPurchaseCollections.insertOne(newPurchase)
-      res.send(result) 
+      res.send(result)
+    })
+
+    // Update a document
+    app.patch('/foods/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateData = {
+        $set: req.body
+      };
+      const result = await foodsCollections.updateOne(filter, updateData, options)
+      res.send(result)
     })
 
 
@@ -92,10 +104,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/',(req,res)=>{
-    res.send('resturant server is running')
+app.get('/', (req, res) => {
+  res.send('resturant server is running')
 })
-app.listen(port, ()=>{
-    console.log('server is running');
-    
+app.listen(port, () => {
+  console.log('server is running');
+
 })
