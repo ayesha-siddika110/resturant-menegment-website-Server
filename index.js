@@ -14,6 +14,23 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser())
 
+const Varifytoken = (req,res,next) =>{
+  const token = req?.cookies?.token;
+  console.log('token:',token)
+  if(!token){
+    return res.status(401).send({message: 'unauthorized access'})
+
+  }
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET , (err, decoded)=>{
+    if(err){
+      return res.status(401).send({message: 'unauthorized access'})
+    }
+    req.user = decoded
+    next();
+  })
+  
+}
+
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -101,6 +118,10 @@ async function run() {
       if (email) {
         query = { buyerEmail: email }
       }
+      // console.log(req.cookies?.token)
+      // if(req.user?.email !== req.query.email){
+      //   return res.status(403).send({message: 'forbidden access'})
+      // }
       const cursor = foodsPurchaseCollections.find(query)
       const result = await cursor.toArray()
       res.send(result)
