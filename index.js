@@ -51,7 +51,7 @@ async function run() {
         })
         .send({ success: true })
     })
-
+///remove jwt token
     app.post('/logout', (req,res)=>{
       res
         .clearCookie('token',{
@@ -61,7 +61,7 @@ async function run() {
         .send({success:true})
     })
 
-
+//
     app.get('/foods', async (req, res) => {
 
       const emaill = req.query.email;
