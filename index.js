@@ -8,7 +8,7 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.use(cors({
-  origin: ['http://localhost:5173','https://resturant-website-eada4.firebaseapp.com/', 'https://resturant-website-eada4.web.app/','https://resturant-menegment-website-110.netlify.app'],
+  origin: ['http://localhost:5173', 'https://resturant-website-eada4.firebaseapp.com/', 'https://resturant-website-eada4.web.app/', 'https://resturant-menegment-website-110.netlify.app'],
   credentials: true
 }))
 app.use(express.json())
@@ -28,7 +28,7 @@ app.use(cookieParser())
 //     req.user = decoded
 //     next();
 //   })
-  
+
 // }
 
 
@@ -66,18 +66,18 @@ async function run() {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-        
+
         })
         .send({ success: true })
     })
-///remove jwt token
-    app.post('/logout', (req,res)=>{
+    ///remove jwt token
+    app.post('/logout', (req, res) => {
       res
-        .clearCookie('token',{
+        .clearCookie('token', {
           httpOnly: true,
           secure: true
         })
-        .send({success:true})
+        .send({ success: true })
     })
 
 
@@ -116,9 +116,14 @@ async function run() {
 
     app.get('/purchaseFood', async (req, res) => {
       const email = req.query.email;
+      //
+      const foodId = req.query.food_id
       let query = {};
       if (email) {
         query = { buyerEmail: email }
+      }
+      if(foodId){
+        query = {food_id: foodId}
       }
 
       const cursor = foodsPurchaseCollections.find(query)
@@ -128,15 +133,41 @@ async function run() {
     app.get('/purchaseFood/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
-      
+
       const query = { _id: new ObjectId(id) }
       const result = await foodsPurchaseCollections.findOne(query)
       res.send(result)
     })
 
+    // app.get('/purchaseFood', async (req, res) => {
+    //   const { _id, food_id } = req.query;
+    //   console.log(_id)
+    //   console.log(food_id)
+    //   // const query = {food_id : id};
+    //   if (_id) {
+    //     const query = { _id: new ObjectId(_id) }
+    //     const result = await foodsPurchaseCollections.findOne(query)
+    //     return res.send(result)
+
+    //   }
+    //   if(food_id){
+    //     const query = {food_id : food_id}
+    //     const cursor = foodsPurchaseCollections.find(query)
+    //     const result = await cursor.toArray()
+    //     return res.send(result)
+    //   }
+    // })
+
     app.post('/purchaseFood', async (req, res) => {
       const newPurchase = req.body;
       const result = await foodsPurchaseCollections.insertOne(newPurchase)
+
+
+      const filter = {_id: new ObjectId(newPurchase.food_id)}
+      const update = {
+        $inc : {purchase_count: 1}
+      }
+      const updatePurchaseCount = await foodsCollections.updateOne(filter, update)
       res.send(result)
     })
 
